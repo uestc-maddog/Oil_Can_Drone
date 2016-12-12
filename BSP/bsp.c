@@ -20,11 +20,9 @@ void SClK_Initial(void)
 ============================================================================*/
 void GPIO_Initial(void)
 {
-    // 配置LED引脚和KEY引脚  LED(PA6)    KEY(PB4),
+    // 配置LED引脚 LED(PA6)  
     GPIO_Init(PORT_LED, PIN_LED, GPIO_Mode_Out_PP_High_Slow);
-    GPIO_SetBits(PORT_LED, PIN_LED);
-
-    GPIO_Init(PORT_KEY, PIN_KEY, GPIO_Mode_In_PU_No_IT);
+    GPIO_ResetBits(PORT_LED, PIN_LED);    // 点亮LED
      
     // 配置CC1101相关控制引脚 CSN(PB4), IRQ(PA2), GDO2(PA3)
     GPIO_Init(PORT_CC_IRQ, PIN_CC_IRQ, GPIO_Mode_In_PU_No_IT);

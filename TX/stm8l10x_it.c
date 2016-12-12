@@ -87,6 +87,7 @@ INTERRUPT_HANDLER(AWU_IRQHandler,4)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    AWU_GetFlagStatus();
 }
 
 /**

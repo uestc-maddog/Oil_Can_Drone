@@ -260,7 +260,6 @@
           <state>$PROJ_DIR$</state>
           <state>$PROJ_DIR$\..\BSP</state>
           <state>$PROJ_DIR$\..\DRIVER\CPU\STM8L_LIB_V1.2.0\inc</state>
-          <state>$PROJ_DIR$\..\DRIVER\CPU\STM8L_LIB_V1.2.0</state>
           <state>$PROJ_DIR$\..\DRIVER\RF</state>
         </option>
         <option>
@@ -610,7 +609,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>$TOOLKIT_DIR$\config\lnkstm8.icf</state>
+          <state>$TOOLKIT_DIR$\config\lnkstm8l101k3.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>

@@ -1,30 +1,26 @@
-"F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101_V2.1源码\DRIVER\CPU\STM8L_LIB_V1.2.0\src\stm8l10x_wfe.c"
+"E:\Github Project\Oil_Can(Drone)\Oil_Can_Drone\DRIVER\CPU\STM8L_LIB_V1.2.0\src\stm8l10x_wfe.c"
 -std=c99
 -ferror-limit=100
 -I
-F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101_V2.1源码\TX
+E:\Github Project\Oil_Can(Drone)\Oil_Can_Drone\TX
 -I
-F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101_V2.1源码\TX\..\BSP
+E:\Github Project\Oil_Can(Drone)\Oil_Can_Drone\TX\..\BSP
 -I
-F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101_V2.1源码\TX\..\DRIVER\CPU\STM8L_LIB_V1.2.0\inc
+E:\Github Project\Oil_Can(Drone)\Oil_Can_Drone\TX\..\DRIVER\CPU\STM8L_LIB_V1.2.0\inc
 -I
-F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101_V2.1源码\TX\..\DRIVER\CPU\STM8L_LIB_V1.2.0
--I
-F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101_V2.1源码\TX\..\DRIVER\RF
+E:\Github Project\Oil_Can(Drone)\Oil_Can_Drone\TX\..\DRIVER\RF
 -I
 E:\My Program\IAR_STM8-7.0\stm8\inc
 -I
 E:\My Program\IAR_STM8-7.0\stm8\inc\c
 -I
-F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101_V2.1源码\TX
+E:\Github Project\Oil_Can(Drone)\Oil_Can_Drone\TX
 -I
-F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101_V2.1源码\BSP
+E:\Github Project\Oil_Can(Drone)\Oil_Can_Drone\BSP
 -I
-F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101_V2.1源码\DRIVER\CPU\STM8L_LIB_V1.2.0\inc
+E:\Github Project\Oil_Can(Drone)\Oil_Can_Drone\DRIVER\CPU\STM8L_LIB_V1.2.0\inc
 -I
-F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101_V2.1源码\DRIVER\CPU\STM8L_LIB_V1.2.0
--I
-F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101_V2.1源码\DRIVER\RF
+E:\Github Project\Oil_Can(Drone)\Oil_Can_Drone\DRIVER\RF
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0
@@ -234,7 +230,7 @@ F:\BaiduYunDownload\STM8L\STM8L101K3T6\Sample\STM8L101例程（库函数）\STM8_CC1101
 -D__IAR_COMPILERBASE__=594189
 -D_GOANNA=1
 -D__DATE__="Dec 12 2016"
--D__TIME__="16:02:24"
+-D__TIME__="19:00:26"
 -D__STDC__=1
 -D__STDC_VERSION__=199901L
 -D__STDC_HOSTED__=1

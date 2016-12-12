@@ -2,6 +2,9 @@
 #include "bsp.h" 
 #include "CC1101.H"
 
+#define LED_GPIO_PORT  GPIOA
+#define LED_GPIO_PINS  GPIO_Pin_6
+
 volatile u16  Cnt1ms = 0;    // 1ms计数变量，每1ms加一 
 int  RecvWaitTime = 0;        // 接收等待时间                
 u16  SendCnt = 0;             // 计数发送的数据包数                
@@ -14,6 +17,7 @@ u8 AckBuffer[ACK_LENGTH]   = {0x55,  0xff,     0,     0x0d, 0x0a};              
 void TIM3_Set(u8 sta);                         // 设置TIM3的开关   sta:0，关闭   1，开启
 void USART1_SendStr(unsigned char *Str);      // USART发送字符串函数                         
 void System_Initial(void);                     // 系统初始化
+void Sleep_Initial(void);                      // AWU定时唤醒初始化 
 u8   RF_SendPacket(u8 *Sendbuffer, u8 length);  // 从机发送数据包
 void DelayMs(u16 x); 
 
@@ -25,9 +29,19 @@ int putchar(int c)
   return (c);  
 }
 
+void Delay(__IO uint16_t nCount)
+{
+    /* Decrement nCount value */
+    while (nCount != 0)
+    {
+        nCount--;
+    }
+}
+
 void main(void)
 {
     u8 res = 0;
+    volatile u8 Timer_30s = 0;
     
     System_Initial();                                 // 初始化系统所有外设               
     
@@ -35,16 +49,25 @@ void main(void)
     printf("STM8_CC1101\r\n");                        // 发送字符串，末尾换行
     //printf("%d:我的PI %s = %.1f\r\n", i,Str, PI);   // 不支持浮点数
     
-    SendBuffer[1] = TX_Address;  // 数据包源地址（从机地址）
+    SendBuffer[1] = TX_Address;                       // 数据包源地址（从机地址）
     printf("Mode:TX\r\n");
-    CC1101SetTRMode(TX_MODE);    // 发送模式 
+    CC1101SetTRMode(TX_MODE);                         // 发送模式 
+    
+    Sleep_Initial();                                  // AWU定时唤醒初始化 
+    printf("1\r\n");
     while(1)
     {
-        res = RF_SendPacket(SendBuffer, SEND_LENGTH);
-        if(res != 0) printf("\r\nSend ERROR:%d\r\n", (int)res);  // ·￠?í′í?ó′ú??
-        LED_TOG();                      // LED闪烁，用于指示发送成功
-        DelayMs(1000);
-        DelayMs(1000);
+        if(Timer_30s++ == 4)             // 约 2 Min
+        {
+            printf("3\r\n");
+            res = RF_SendPacket(SendBuffer, SEND_LENGTH);
+            if(res != 0) printf("\r\nSend ERROR:%d\r\n", (int)res);  // 发送失败
+            else         printf("\r\nSend  OVER!\r\n");              // 发送成功
+            LED_TOG();                      // LED闪烁，用于指示发送成功
+            Timer_30s = 0;
+        }
+        printf("2\r\n");
+        halt();//挂起，最低功耗
     }
 }
 
@@ -98,8 +121,7 @@ void System_Initial(void)
     USART1_Initial();       // 初始化串口1  
     TIM3_Initial();         // 初始化定时器3，基准1ms  
     SPI_Initial();          // 初始化SPI               
-
-    enableInterrupts();     // 打开总中断            
+    //enableInterrupts();     // 打开总中断            
 }
 
 /*===========================================================================
@@ -174,4 +196,22 @@ void USART1_SendStr(unsigned char *Str)
         while(!USART_GetFlagStatus (USART_FLAG_TXE));//等待发送完毕
         Str++;//下一个数据
     }
+}
+
+// AWU定时唤醒初始化
+void Sleep_Initial(void)
+{
+    // 所有IO全部输出低电平    降低功耗
+    GPIO_Init(GPIOA, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_7, GPIO_Mode_Out_PP_Low_Slow);
+    GPIO_Init(GPIOB, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3, GPIO_Mode_Out_PP_Low_Slow);
+    GPIO_Init(GPIOC, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7, GPIO_Mode_Out_PP_Low_Slow);
+    GPIO_Init(GPIOD, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7, GPIO_Mode_Out_PP_Low_Slow);
+    
+    CLK_PeripheralClockConfig(CLK_Peripheral_AWU, ENABLE); // 使能AWU外设时钟
+    
+    AWU_DeInit();                                          // AWU恢复初始状态
+    AWU_LSICalibrationConfig(12800);                       // AWU LSI校准，因为AWU是被LSI驱动工作的
+    AWU_Init(AWU_Timebase_30s);                            // 30s定时唤醒
+    AWU_Cmd(ENABLE);                                       // 使能AWU
+    enableInterrupts();                                    // 使能中断
 }
