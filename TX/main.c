@@ -57,7 +57,7 @@ void main(void)
     printf("1\r\n");
     while(1)
     {
-        if(Timer_30s++ == 4)             // 约 2 Min
+        if(Timer_30s++ == 4)             // 约 2 Min     30* 4
         {
             printf("3\r\n");
             res = RF_SendPacket(SendBuffer, SEND_LENGTH);
@@ -211,7 +211,7 @@ void Sleep_Initial(void)
     
     AWU_DeInit();                                          // AWU恢复初始状态
     AWU_LSICalibrationConfig(12800);                       // AWU LSI校准，因为AWU是被LSI驱动工作的
-    AWU_Init(AWU_Timebase_30s);                            // 30s定时唤醒
+    AWU_Init(AWU_Timebase_2s);                            // 30s定时唤醒
     AWU_Cmd(ENABLE);                                       // 使能AWU
     enableInterrupts();                                    // 使能中断
 }

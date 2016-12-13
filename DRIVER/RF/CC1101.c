@@ -37,32 +37,59 @@ INT8U PaTabel[] = { 0xc0, 0xC8, 0x84, 0x60, 0x68, 0x34, 0x1D, 0x0E};
 // PA table 
 #define PA_TABLE {0xc2,0x00,0x00,0x00,0x00,0x00,0x00,0x00,}
 
-static const INT8U CC1101InitData[22][2]= 
-{
-  {CC1101_IOCFG0,      0x06},
-  {CC1101_FIFOTHR,     0x47},
-  {CC1101_PKTCTRL0,    0x05},
-  {CC1101_CHANNR,      0x01},
-  {CC1101_FSCTRL1,     0x06},
-  {CC1101_FREQ2,       0x0F},
-  {CC1101_FREQ1,       0x62},
-  {CC1101_FREQ0,       0x76},
-  {CC1101_MDMCFG4,     0xF6},
-  {CC1101_MDMCFG3,     0x43},
-  {CC1101_MDMCFG2,     0x13},
-  {CC1101_DEVIATN,     0x15},
-  {CC1101_MCSM0,       0x18},
-  {CC1101_FOCCFG,      0x16},
-  {CC1101_WORCTRL,     0xFB},
-  {CC1101_FSCAL3,      0xE9},
-  {CC1101_FSCAL2,      0x2A},
-  {CC1101_FSCAL1,      0x00},
-  {CC1101_FSCAL0,      0x1F},
-  {CC1101_TEST2,       0x81},
-  {CC1101_TEST1,       0x35},
-  {CC1101_MCSM1,       0x3B},
-};
+//// RF = 915MHz
+//static const uint8_t CC1101InitData[22][2]= 
+//{
+//  {CC1101_IOCFG0,   0x06},
+//  {CC1101_FIFOTHR,  0x47},
+//  {CC1101_PKTCTRL0, 0x05},
+//  {CC1101_CHANNR,   0x01},   // í¨μà1  Channel number = 1
+//  {CC1101_FSCTRL1,  0x06},
+//  {CC1101_FREQ2,    0x23},   // ?ù?μ  915.000000       ??2¨?μ?ê=?ù?μ+2???￡¨0.2MHz￡?* í¨μào?  915.199951MHz
+//  {CC1101_FREQ1,    0x31},
+//  {CC1101_FREQ0,    0x3B},
+//  {CC1101_MDMCFG4,  0xFA},   // êy?Y?ù?ê￡o49.9878kBaud
+//  {CC1101_MDMCFG3,  0xF8},
+//  {CC1101_MDMCFG2,  0x13},
+//  {CC1101_DEVIATN,  0x15},
+//  {CC1101_MCSM0,    0x18},
+//  {CC1101_FOCCFG,   0x16},
+//  {CC1101_WORCTRL,  0xFB},
+//  {CC1101_FSCAL3,   0xE9},
+//  {CC1101_FSCAL2,   0x2A},
+//  {CC1101_FSCAL1,   0x00},
+//  {CC1101_FSCAL0,   0x1F},
+//  {CC1101_TEST2,    0x81},
+//  {CC1101_TEST1,    0x35},
+//  {CC1101_MCSM1,    0x3B},
+//};
 
+// RF = 400MHz
+static const uint8_t CC1101InitData[22][2]= 
+{
+  {CC1101_IOCFG0,   0x06},
+  {CC1101_FIFOTHR,  0x47},
+  {CC1101_PKTCTRL0, 0x05},
+  {CC1101_CHANNR,   0x01},   // í¨μà1  Channel number = 1
+  {CC1101_FSCTRL1,  0x06},
+  {CC1101_FREQ2,    0x0F}, // ?ù?μ  399.999939MHz    ??2¨?μ?ê=?ù?μ+2???￡¨0.2MHz￡?* í¨μào?  400.199890MHz
+  {CC1101_FREQ1,    0x62},
+  {CC1101_FREQ0,    0x76},
+  {CC1101_MDMCFG4,  0xF6},
+  {CC1101_MDMCFG3,  0x43},
+  {CC1101_MDMCFG2,  0x13},
+  {CC1101_DEVIATN,  0x15},
+  {CC1101_MCSM0,    0x18},
+  {CC1101_FOCCFG,   0x16},
+  {CC1101_WORCTRL,  0xFB},
+  {CC1101_FSCAL3,   0xE9},
+  {CC1101_FSCAL2,   0x2A},
+  {CC1101_FSCAL1,   0x00},
+  {CC1101_FSCAL0,   0x1F},
+  {CC1101_TEST2,    0x81},
+  {CC1101_TEST1,    0x35},
+  {CC1101_MCSM1,    0x3B},
+};
 
 /*read a byte from the specified register*/
 INT8U CC1101ReadReg( INT8U addr );
@@ -432,8 +459,9 @@ void CC1101Init( void )
 //    }
     
     CC1101SetAddress(TX_Address, BROAD_0AND255);   // 从机地址
-    CC1101SetSYNC(0x8799);
-    CC1101WriteReg(CC1101_MDMCFG1, 0x72);          // Modem Configuration
+    CC1101SetSYNC(0x8799);                //   8799
+    CC1101WriteReg(CC1101_MDMCFG1, 0x72); // Modem Configuration      0x22
+//    CC1101WriteReg(CC1101_MDMCFG0, 0xF8);
 
     CC1101WriteMultiReg(CC1101_PATABLE, PaTabel+1, 1);  // 发射功率
 //  CC1101WriteMultiReg(CC1101_PATABLE, PaTabel, 8);
