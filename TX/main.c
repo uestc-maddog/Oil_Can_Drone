@@ -42,47 +42,57 @@ void Delay(__IO uint16_t nCount)
 void main(void)
 {
     volatile u8 res = 0;
-    volatile u8 Timer_30s = 0;                        // 上电发送
+    volatile u8 Timer_30s = 6;                        // 上电发送
     
     System_Initial();                                 // 初始化系统所有外设               
-    CC1101Init();                                   // 初始化CC1101为发送模式 
+    //CC1101Init();                                   // 初始化CC1101为发送模式 
     SendBuffer[1] = TX_Address;                       // 数据包源地址（从机地址）
     
-    //Sleep_Initial();                                  // AWU定时唤醒初始化 
+    Sleep_Initial();                                  // AWU定时唤醒初始化 
     
-    // 通信测试
-    while(1)
-    {
-        LED_ON();                          // LED闪烁，用于指示发送成功
-        //CC1101Init(); 
- send:        
-        res = RF_SendPacket(SendBuffer, SEND_LENGTH);
-        if(res != 0) 
-        {
-          printf("Send ERROR:%d\r\nRetry now...\r\n", (int)res);  // 发送失败
-          DelayMs(300);
-          goto send;
-        }
-        else  printf("Send OK!\r\n");              // 发送成功
-        LED_OFF();
-        DelayMs(1000);DelayMs(1000);DelayMs(1000);DelayMs(1000);DelayMs(1000);DelayMs(1000);
-        DelayMs(1000);DelayMs(1000);
-    }
+//    // 通信测试
 //    while(1)
 //    {
-//        if(Timer_30s++ == 1)                   // 约 2 Min     30* 4
+//        LED_ON();                          // LED闪烁，用于指示发送成功
+//        //CC1101Init(); 
+// send:        
+//        res = RF_SendPacket(SendBuffer, SEND_LENGTH);
+//        if(res != 0) 
 //        {
-//            LED_ON();                          // LED闪烁，用于指示发送成功
-//            CC1101Init(); 
-//            res = RF_SendPacket(SendBuffer, SEND_LENGTH);
-//            if(res != 0) printf("Send ERROR:%d\r\n", (int)res);  // 发送失败
-//            else         printf("Send  OVER!\r\n");              // 发送成功
-//            Timer_30s = 0;
+//          printf("Send ERROR:%d\r\nRetry now...\r\n", (int)res);  // 发送失败
+//          DelayMs(300);
+//          goto send;
 //        }
+//        else  printf("Send OK!\r\n");              // 发送成功
 //        LED_OFF();
-//        printf("Timer_30s=%d\r\n", (int)Timer_30s);  
-//        halt();//挂起，最低功耗
+//        DelayMs(1000);DelayMs(1000);DelayMs(1000);DelayMs(1000);DelayMs(1000);DelayMs(1000);
+//        DelayMs(1000);DelayMs(1000);
 //    }
+    
+    while(1)
+    {
+        printf("Timer_30s=%d\r\n", (int)Timer_30s);  
+        if(Timer_30s++ == 6)                   // 约 3 Min     30s * 6
+        {
+            SWITCH_ON();
+            LED_ON();                          // LED闪烁，用于指示发送成功
+            CC1101Init(); 
+ send:            
+            res = RF_SendPacket(SendBuffer, SEND_LENGTH);
+            if(res != 0) 
+            {
+              printf("Send ERROR:%d\r\nRetry now...\r\n", (int)res);  // 发送失败
+              DelayMs(350);
+              goto send;
+            }
+            else printf("Send OK!\r\n");              // 发送成功
+            
+            SWITCH_OFF();
+            LED_OFF();
+            Timer_30s = 1;
+        }
+        halt();//挂起，最低功耗
+    }
 }
 
 // 设置TIM3的开关
