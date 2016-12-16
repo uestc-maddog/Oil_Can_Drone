@@ -19,17 +19,23 @@
 #define PIN_MOSI        GPIO_Pin_6
 #define PIN_MISO        GPIO_Pin_7
 
-// LED和KEY引脚定义，LED(PA6), KEY(PA4)
+// LED 和 SWITCH引脚定义，LED(PC6), SWITCH(PD1), SMG_EN(PD2)
 #define PORT_LED        GPIOA
 #define PIN_LED         GPIO_Pin_6
 
-#define PORT_KEY        GPIOB
-#define PIN_KEY         GPIO_Pin_4
+#define PORT_SWITCH     GPIOD
+#define PIN_SWITCH      GPIO_Pin_1
 
-// LED操作函数，(ON)打开, (OFF)关闭，(TOG)翻转
+#define PORT_SMGEN      GPIOD
+#define PIN_SMGEN       GPIO_Pin_2    // SMG_EN
+
+// LED SWITCH操作函数，(ON)打开, (OFF)关闭，(TOG)翻转
 #define LED_ON()        GPIO_ResetBits(PORT_LED, PIN_LED)        
 #define LED_OFF()       GPIO_SetBits(PORT_LED, PIN_LED)
 #define LED_TOG()       GPIO_ToggleBits(PORT_LED, PIN_LED)
+
+#define SWITCH_ON()     GPIO_ResetBits(PORT_SMGEN, PIN_SMGEN);GPIO_ResetBits(PORT_SWITCH, PIN_SWITCH)        
+#define SWITCH_OFF()    GPIO_SetBits(PORT_SWITCH, PIN_SWITCH);GPIO_SetBits(PORT_SMGEN, PIN_SMGEN)
 
 void SClK_Initial(void);                // 初始化系统时钟，系统时钟 = 16MHZ
 void GPIO_Initial(void);                // 初始化通用IO端口 LED KEY

@@ -1,4 +1,5 @@
 #include "stdio.h" 
+#include "string.h" 
 #include "bsp.h" 
 #include "CC1101.H"
 
@@ -40,35 +41,48 @@ void Delay(__IO uint16_t nCount)
 
 void main(void)
 {
-    u8 res = 0;
-    volatile u8 Timer_30s = 0;
+    volatile u8 res = 0;
+    volatile u8 Timer_30s = 0;                        // 上电发送
     
     System_Initial();                                 // 初始化系统所有外设               
-    
-    CC1101Init();                                     // 初始化L01寄存器  
-    printf("STM8_CC1101\r\n");                        // 发送字符串，末尾换行
-    //printf("%d:我的PI %s = %.1f\r\n", i,Str, PI);   // 不支持浮点数
-    
+    CC1101Init();                                   // 初始化CC1101为发送模式 
     SendBuffer[1] = TX_Address;                       // 数据包源地址（从机地址）
-    printf("Mode:TX\r\n");
-    CC1101SetTRMode(TX_MODE);                         // 发送模式 
     
-    Sleep_Initial();                                  // AWU定时唤醒初始化 
-    printf("1\r\n");
+    //Sleep_Initial();                                  // AWU定时唤醒初始化 
+    
+    // 通信测试
     while(1)
     {
-        if(Timer_30s++ == 4)             // 约 2 Min     30* 4
+        LED_ON();                          // LED闪烁，用于指示发送成功
+        //CC1101Init(); 
+ send:        
+        res = RF_SendPacket(SendBuffer, SEND_LENGTH);
+        if(res != 0) 
         {
-            printf("3\r\n");
-            res = RF_SendPacket(SendBuffer, SEND_LENGTH);
-            if(res != 0) printf("\r\nSend ERROR:%d\r\n", (int)res);  // 发送失败
-            else         printf("\r\nSend  OVER!\r\n");              // 发送成功
-            LED_TOG();                      // LED闪烁，用于指示发送成功
-            Timer_30s = 0;
+          printf("Send ERROR:%d\r\nRetry now...\r\n", (int)res);  // 发送失败
+          DelayMs(300);
+          goto send;
         }
-        printf("2\r\n");
-        halt();//挂起，最低功耗
+        else  printf("Send OK!\r\n");              // 发送成功
+        LED_OFF();
+        DelayMs(1000);DelayMs(1000);DelayMs(1000);DelayMs(1000);DelayMs(1000);DelayMs(1000);
+        DelayMs(1000);DelayMs(1000);
     }
+//    while(1)
+//    {
+//        if(Timer_30s++ == 1)                   // 约 2 Min     30* 4
+//        {
+//            LED_ON();                          // LED闪烁，用于指示发送成功
+//            CC1101Init(); 
+//            res = RF_SendPacket(SendBuffer, SEND_LENGTH);
+//            if(res != 0) printf("Send ERROR:%d\r\n", (int)res);  // 发送失败
+//            else         printf("Send  OVER!\r\n");              // 发送成功
+//            Timer_30s = 0;
+//        }
+//        LED_OFF();
+//        printf("Timer_30s=%d\r\n", (int)Timer_30s);  
+//        halt();//挂起，最低功耗
+//    }
 }
 
 // 设置TIM3的开关
@@ -94,9 +108,11 @@ void TIM3_Set(u8 sta)
 ============================================================================*/
 void DelayMs(u16 x)
 {
+    volatile u16 timer_ms = x;
+    
     Cnt1ms = 0;
     TIM3_Set(1);
-    while(Cnt1ms <= x);
+    while(Cnt1ms <= timer_ms);
     TIM3_Set(0);
 }
 
@@ -116,12 +132,14 @@ void TIM3_1MS_ISR(void)
 void System_Initial(void)
 {
     SClK_Initial();         // 初始化系统时钟，16M     
-    GPIO_Initial();         // 初始化GPIO   LED KEY 
+    GPIO_Initial();         // 初始化GPIO   LED
  
     USART1_Initial();       // 初始化串口1  
     TIM3_Initial();         // 初始化定时器3，基准1ms  
     SPI_Initial();          // 初始化SPI               
-    //enableInterrupts();     // 打开总中断            
+    enableInterrupts();     // 打开总中断 
+    
+    printf("Oil_Can_Drone\r\n");                      // 发送字符串，末尾换行
 }
 
 /*===========================================================================
@@ -137,28 +155,40 @@ void System_Initial(void)
 ============================================================================*/
 INT8U RF_SendPacket(INT8U *Sendbuffer, INT8U length)
 {
-    uint8_t  i = 0, ack_len = 0, ack_buffer[65] = {0};
+    uint8_t  i = 0, ack_len = 0, ack_buffer[30] = {0};
+    RecvWaitTime = (int)RECV_TIMEOUT;           // 等待应答超时限制1500ms
     
     CC1101SendPacket(SendBuffer, length, ADDRESS_CHECK);    // 发送数据 
-                           
-    CC1101Init();                               // 初始化L01寄存器   
+    //DelayMs(5);                       
+    
+    //CC1101Init();                               // 初始化L01寄存器 
     CC1101SetTRMode(RX_MODE);                   // 准备接收应答
 
-    RecvWaitTime = (int)RECV_TIMEOUT;           // 等待应答超时限制1500ms
     TIM3_Set(1);                                // 开启TIM3
-
-    printf("Send Over, waiting for ack...\r\n");
+    printf("waiting for ack...\r\n");
     while(CC_IRQ_READ() != 0)                   // 等待接收数据包
     {
         if(RecvWaitTime <= 0)      
         {  
             TIM3_Set(0);                            // 关闭TIM3
-            printf("RecvWaitTime0=%d\r\n", RecvWaitTime);
+            //printf("RecvWaitTime0=%d\r\n", RecvWaitTime);
             return 1;                              // 等待应答超时
         }
     }
-    printf("RecvWaitTime1=%d\r\n", RecvWaitTime);
-    while(CC_IRQ_READ() == 0);               
+    //TIM3_Set(0); 
+    //printf("RecvWaitTime1=%d\r\n", RecvWaitTime);
+
+    RecvWaitTime = 50;           // 等待应答超时限制50ms
+    //TIM3_Set(1);                                // 开启TIM3
+    while(CC_IRQ_READ() == 0)
+    {
+        if(RecvWaitTime <= 0)      
+        {  
+            TIM3_Set(0);                            // 关闭TIM3
+            //printf("RecvWaitTime0=%d\r\n", RecvWaitTime);
+            return 1;                              // 等待应答超时
+        }
+    }
     printf("RecvWaitTime2=%d\r\n", RecvWaitTime);
     TIM3_Set(0);                                // 关闭TIM3
     ack_len = CC1101RecPacket(ack_buffer);      // 读取收到的数据
@@ -166,6 +196,19 @@ INT8U RF_SendPacket(INT8U *Sendbuffer, INT8U length)
 //                        // 帧头  源地址  目标地址    帧尾
 //AckBuffer[ACK_LENGTH]   = {0x55,  0xff,     0,     0x0d, 0x0a};                                             // 主机应答数据
     
+    if((strlen((const char*)ack_buffer) <= 0) || (strlen((const char*)ack_buffer)) > 29)  
+    {
+        CC1101Init(); 
+        printf("ack_len0=%d\r\n", ack_len);
+        return 2;                                              // 数据包长度错误
+    }
+    
+    if(ack_len <= 0 || ack_len > 30)  
+    {
+        CC1101Init(); 
+        printf("ack_len1=%d\r\n", ack_len);
+        return 2;                                          // 数据包长度错误
+    }
     if(ack_len != ACK_LENGTH) return 2;                                               // 数据包长度错误
     if(ack_buffer[0] != 0x55) return 3;                                               // 数据包帧头错误
     if(ack_buffer[1] != 0xff) return 4;                                               // 数据包源地址错误       
@@ -203,15 +246,14 @@ void Sleep_Initial(void)
 {
     // 所有IO全部输出低电平    降低功耗
     GPIO_Init(GPIOA, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_7, GPIO_Mode_Out_PP_Low_Slow);
-    GPIO_Init(GPIOB, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3, GPIO_Mode_Out_PP_Low_Slow);
-    GPIO_Init(GPIOC, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7, GPIO_Mode_Out_PP_Low_Slow);
+    GPIO_Init(GPIOB, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_3, GPIO_Mode_Out_PP_Low_Slow);
+    GPIO_Init(GPIOC, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_7, GPIO_Mode_Out_PP_Low_Slow);
     GPIO_Init(GPIOD, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7, GPIO_Mode_Out_PP_Low_Slow);
     
     CLK_PeripheralClockConfig(CLK_Peripheral_AWU, ENABLE); // 使能AWU外设时钟
     
     AWU_DeInit();                                          // AWU恢复初始状态
     AWU_LSICalibrationConfig(12800);                       // AWU LSI校准，因为AWU是被LSI驱动工作的
-    AWU_Init(AWU_Timebase_2s);                            // 30s定时唤醒
+    AWU_Init(AWU_Timebase_30s);                            // 30s定时唤醒
     AWU_Cmd(ENABLE);                                       // 使能AWU
-    enableInterrupts();                                    // 使能中断
 }

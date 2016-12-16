@@ -7,10 +7,13 @@ Description : This module contains the low level operations for CC1101
 ================================================================================
 */
 #include "CC1101.H"
+#include "STM8l10x_conf.h"
 #include "stdio.h"
 
-//10, 7, 5, 0, -5, -10, -15, -20, dbm output power, 0x12 == -30dbm
-INT8U PaTabel[] = { 0xc0, 0xC8, 0x84, 0x60, 0x68, 0x34, 0x1D, 0x0E};
+////10, 7, 5, 0, -5, -10, -15, -20, dbm output power, 0x12 == -30dbm
+//INT8U PaTabel[] = { 0xc0, 0xC8, 0x84, 0x60, 0x68, 0x34, 0x1D, 0x0E};
+
+INT8U PaTabel[] = {0xc0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,};   // 915MHz   10dBm
 
 // Sync word qualifier mode = 30/32 sync word bits detected 
 // CRC autoflush = false 
@@ -37,7 +40,35 @@ INT8U PaTabel[] = { 0xc0, 0xC8, 0x84, 0x60, 0x68, 0x34, 0x1D, 0x0E};
 // PA table 
 #define PA_TABLE {0xc2,0x00,0x00,0x00,0x00,0x00,0x00,0x00,}
 
-//// RF = 915MHz
+// RF = 915MHz
+static const uint8_t CC1101InitData[23][2]= 
+{
+  {CC1101_IOCFG0,   0x06},
+  {CC1101_FIFOTHR,  0x47},
+  {CC1101_PKTCTRL0, 0x05},
+  {CC1101_CHANNR,   0x01},   // í¨μà1  Channel number = 1
+  {CC1101_FSCTRL1,  0x06},
+  {CC1101_FREQ2,    0x23},   // ?ù?μ  915.000000       ??2¨?μ?ê=?ù?μ+2???￡¨0.2MHz￡?* í¨μào?  915.199951MHz
+  {CC1101_FREQ1,    0x31},
+  {CC1101_FREQ0,    0x3B},
+  {CC1101_MDMCFG4,  0xFA},   // êy?Y?ù?ê￡o49.9878kBaud
+  {CC1101_MDMCFG3,  0xF8},
+  {CC1101_MDMCFG2,  0x13},
+  {CC1101_DEVIATN,  0x15},
+  {CC1101_MCSM2,    0x07},   // none
+  {CC1101_MCSM1,    0x30},   // 0x3B
+  {CC1101_MCSM0,    0x18},
+  {CC1101_FOCCFG,   0x16},
+  {CC1101_WORCTRL,  0xFB},
+  {CC1101_FSCAL3,   0xE9},
+  {CC1101_FSCAL2,   0x2A},
+  {CC1101_FSCAL1,   0x00},
+  {CC1101_FSCAL0,   0x1F},
+  {CC1101_TEST2,    0x81},
+  {CC1101_TEST1,    0x35},
+};
+
+//// RF = 400MHz
 //static const uint8_t CC1101InitData[22][2]= 
 //{
 //  {CC1101_IOCFG0,   0x06},
@@ -45,11 +76,11 @@ INT8U PaTabel[] = { 0xc0, 0xC8, 0x84, 0x60, 0x68, 0x34, 0x1D, 0x0E};
 //  {CC1101_PKTCTRL0, 0x05},
 //  {CC1101_CHANNR,   0x01},   // í¨μà1  Channel number = 1
 //  {CC1101_FSCTRL1,  0x06},
-//  {CC1101_FREQ2,    0x23},   // ?ù?μ  915.000000       ??2¨?μ?ê=?ù?μ+2???￡¨0.2MHz￡?* í¨μào?  915.199951MHz
-//  {CC1101_FREQ1,    0x31},
-//  {CC1101_FREQ0,    0x3B},
-//  {CC1101_MDMCFG4,  0xFA},   // êy?Y?ù?ê￡o49.9878kBaud
-//  {CC1101_MDMCFG3,  0xF8},
+//  {CC1101_FREQ2,    0x0F}, // ?ù?μ  399.999939MHz    ??2¨?μ?ê=?ù?μ+2???￡¨0.2MHz￡?* í¨μào?  400.199890MHz
+//  {CC1101_FREQ1,    0x62},
+//  {CC1101_FREQ0,    0x76},
+//  {CC1101_MDMCFG4,  0xF6},
+//  {CC1101_MDMCFG3,  0x43},
 //  {CC1101_MDMCFG2,  0x13},
 //  {CC1101_DEVIATN,  0x15},
 //  {CC1101_MCSM0,    0x18},
@@ -63,33 +94,6 @@ INT8U PaTabel[] = { 0xc0, 0xC8, 0x84, 0x60, 0x68, 0x34, 0x1D, 0x0E};
 //  {CC1101_TEST1,    0x35},
 //  {CC1101_MCSM1,    0x3B},
 //};
-
-// RF = 400MHz
-static const uint8_t CC1101InitData[22][2]= 
-{
-  {CC1101_IOCFG0,   0x06},
-  {CC1101_FIFOTHR,  0x47},
-  {CC1101_PKTCTRL0, 0x05},
-  {CC1101_CHANNR,   0x01},   // í¨μà1  Channel number = 1
-  {CC1101_FSCTRL1,  0x06},
-  {CC1101_FREQ2,    0x0F}, // ?ù?μ  399.999939MHz    ??2¨?μ?ê=?ù?μ+2???￡¨0.2MHz￡?* í¨μào?  400.199890MHz
-  {CC1101_FREQ1,    0x62},
-  {CC1101_FREQ0,    0x76},
-  {CC1101_MDMCFG4,  0xF6},
-  {CC1101_MDMCFG3,  0x43},
-  {CC1101_MDMCFG2,  0x13},
-  {CC1101_DEVIATN,  0x15},
-  {CC1101_MCSM0,    0x18},
-  {CC1101_FOCCFG,   0x16},
-  {CC1101_WORCTRL,  0xFB},
-  {CC1101_FSCAL3,   0xE9},
-  {CC1101_FSCAL2,   0x2A},
-  {CC1101_FSCAL1,   0x00},
-  {CC1101_FSCAL0,   0x1F},
-  {CC1101_TEST2,    0x81},
-  {CC1101_TEST1,    0x35},
-  {CC1101_MCSM1,    0x3B},
-};
 
 /*read a byte from the specified register*/
 INT8U CC1101ReadReg( INT8U addr );
@@ -116,6 +120,7 @@ void CC1101Reset( void );
 void CC1101WriteMultiReg( INT8U addr, INT8U *buff, INT8U size );
 
 extern INT8U SPI_ExchangeByte(INT8U input); // 通过SPI进行数据交换,见bsp.c
+extern void DelayMs(u16 x); 
 
 /*
 ================================================================================
@@ -333,11 +338,16 @@ OUTPUT   : None
 void CC1101SendPacket( INT8U *txbuffer, INT8U size, TX_DATA_MODE mode )
 {
     uint8_t address;
+    static uint8_t flag = 0;
 	
     if(mode == BROADCAST)          address = 0;
     else if(mode == ADDRESS_CHECK) address = CC1101ReadReg(CC1101_ADDR);  // 本机地址
 
-    printf("local_address:%d\r\n", (int)address);
+    if(flag == 0)    // 仅第一次打印
+    {
+        printf("local_address:%d\r\n", (int)address);
+        flag = 1;
+    }
     CC1101ClrTXBuff();
     
     if((CC1101ReadReg(CC1101_PKTCTRL1)& ~0x03)!= 0)
@@ -409,27 +419,26 @@ INPUT    : rxBuffer, A buffer store the received data
 OUTPUT   : 1:received count, 0:no data
 ================================================================================
 */
-INT8U CC1101RecPacket( INT8U *rxBuffer )
+INT8U CC1101RecPacket(INT8U *rxBuffer)
 {
     uint8_t status[2], pktLen;
-    uint16_t x = 0;
 
     if(CC1101GetRXCnt()!= 0)
     {
-        pktLen = CC1101ReadReg(CC1101_RXFIFO);           // Read length byte
+        pktLen = CC1101ReadReg(CC1101_RXFIFO) & 0xff;        // Read length byte
         if((CC1101ReadReg(CC1101_PKTCTRL1) & ~0x03)!= 0)
         {
-            x = CC1101ReadReg(CC1101_RXFIFO);
+            CC1101ReadReg(CC1101_RXFIFO);
         }
-        if(pktLen == 0) return 0;
-        else            pktLen --;
+        if(pktLen <= 0 || pktLen > 30) return 0;
+        else                           pktLen --;
         CC1101ReadMultiReg(CC1101_RXFIFO, rxBuffer, pktLen); // Pull data
         CC1101ReadMultiReg(CC1101_RXFIFO, status, 2);        // Read  status bytes
 
         CC1101ClrRXBuff();
 
         if(status[1] & CRC_OK) return pktLen; 
-        else                    return 0; 
+        else                   return 0; 
     }
     else return 0;                               // Error
 }
@@ -444,30 +453,31 @@ OUTPUT   : None
 void CC1101Init( void )
 {
     volatile INT8U i, j;
-
     CC1101Reset();    
     
-    for(i = 0; i < 22; i++)
+    for(i = 0; i < 23; i++)
     {
         CC1101WriteReg(CC1101InitData[i][0], CC1101InitData[i][1]);
     }
  
-//    for(i = 0; i < 22; i++)
+//    for(i = 0; i < 23; i++)
 //    {
 //        j = CC1101ReadReg(CC1101InitData[i][0]);
-//        printf(" %d  ", (int)j);
+//        printf("%d  ", (int)j);
 //    }
     
-    CC1101SetAddress(TX_Address, BROAD_0AND255);   // 从机地址
-    CC1101SetSYNC(0x8799);                //   8799
-    CC1101WriteReg(CC1101_MDMCFG1, 0x72); // Modem Configuration      0x22
-//    CC1101WriteReg(CC1101_MDMCFG0, 0xF8);
+    CC1101SetAddress(TX_Address, BROAD_0AND255);  // 从机地址
+    CC1101SetSYNC(0xD391);                        // 8799
+    CC1101WriteReg(CC1101_MDMCFG1, 0x22);         // Modem Configuration      
+    CC1101WriteReg(CC1101_MDMCFG0, 0xF8);
 
-    CC1101WriteMultiReg(CC1101_PATABLE, PaTabel+1, 1);  // 发射功率
-//  CC1101WriteMultiReg(CC1101_PATABLE, PaTabel, 8);
+//    CC1101WriteMultiReg(CC1101_PATABLE, PaTabel+1, 1);  // 发射功率
+    CC1101WriteMultiReg(CC1101_PATABLE, PaTabel, 8);
 
-    i = CC1101ReadStatus(CC1101_PARTNUM);//for test, must be 0x80
-    i = CC1101ReadStatus(CC1101_VERSION);//for test, refer to the datasheet
+//    i = CC1101ReadStatus(CC1101_PARTNUM);//for test, must be 0x80
+//    i = CC1101ReadStatus(CC1101_VERSION);//for test, refer to the datasheet
+//    CC1101SetTRMode(TX_MODE);                      // 发送模式 
+    printf("Mode:TX\r\n");
 }
 
 

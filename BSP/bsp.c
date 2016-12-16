@@ -7,6 +7,8 @@
 
 #include "bsp.h"
 
+extern void TIM3_Set(u8 sta);                         // 设置TIM3的开关   sta:0，关闭   1，开启
+
 /*===========================================================================
 * 函数 ：SClK_Initial() => 初始化系统时钟，系统时钟 = 4MHZ                  *
 ============================================================================*/
@@ -20,9 +22,13 @@ void SClK_Initial(void)
 ============================================================================*/
 void GPIO_Initial(void)
 {
-    // 配置LED引脚 LED(PA6)  
+    // 配置LED引脚    PC6
     GPIO_Init(PORT_LED, PIN_LED, GPIO_Mode_Out_PP_High_Slow);
-    GPIO_ResetBits(PORT_LED, PIN_LED);    // 点亮LED
+    LED_OFF();       // 熄灭LED
+    
+    // 配置SWITCH引脚 PB2 
+    GPIO_Init(PORT_SWITCH, PIN_SWITCH, GPIO_Mode_Out_PP_High_Slow);
+    SWITCH_ON();     // 开启CC1101电源
      
     // 配置CC1101相关控制引脚 CSN(PB4), IRQ(PA2), GDO2(PA3)
     GPIO_Init(PORT_CC_IRQ, PIN_CC_IRQ, GPIO_Mode_In_PU_No_IT);
