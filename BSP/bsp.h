@@ -20,7 +20,7 @@
 #define PIN_MISO        GPIO_Pin_7
 
 // LED 和 SWITCH引脚定义，LED(PC6), SWITCH(PD1), SMG_EN(PD2)
-#define PORT_LED        GPIOA
+#define PORT_LED        GPIOC
 #define PIN_LED         GPIO_Pin_6
 
 #define PORT_SWITCH     GPIOD

@@ -430,7 +430,7 @@ INT8U CC1101RecPacket(INT8U *rxBuffer)
         {
             CC1101ReadReg(CC1101_RXFIFO);
         }
-        if(pktLen <= 0 || pktLen > 30) return 0;
+        if(pktLen <= 0 || pktLen > 15) return 0;
         else                           pktLen --;
         CC1101ReadMultiReg(CC1101_RXFIFO, rxBuffer, pktLen); // Pull data
         CC1101ReadMultiReg(CC1101_RXFIFO, status, 2);        // Read  status bytes
@@ -460,11 +460,11 @@ void CC1101Init( void )
         CC1101WriteReg(CC1101InitData[i][0], CC1101InitData[i][1]);
     }
  
-//    for(i = 0; i < 23; i++)
-//    {
-//        j = CC1101ReadReg(CC1101InitData[i][0]);
-//        printf("%d  ", (int)j);
-//    }
+    for(i = 0; i < 23; i++)
+    {
+        j = CC1101ReadReg(CC1101InitData[i][0]);
+        printf("%d  ", (int)j);
+    }
     
     CC1101SetAddress(TX_Address, BROAD_0AND255);  // ´Ó»úµØÖ·
     CC1101SetSYNC(0xD391);                        // 8799

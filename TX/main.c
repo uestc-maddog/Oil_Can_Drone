@@ -10,13 +10,13 @@ volatile u16  Cnt1ms = 0;    // 1ms计数变量，每1ms加一
 int  RecvWaitTime = 0;        // 接收等待时间                
 u16  SendCnt = 0;             // 计数发送的数据包数                
 
-                              // 帧头  源地址  目标地址        有效数据                                帧尾
-u8 SendBuffer[SEND_LENGTH] = {0x55,   0,    0xff,    '2', '9', '6', '8', '5', '1', '2', '9', '2', 0x0d, 0x0a}; // 从机待发送数据
-                              // 帧头  源地址  目标地址    帧尾
+                           // 帧头  源地址  目标地址  distance*10  帧尾
+u8 SendBuffer[SEND_LENGTH] = {0x55,   0,    0xff,     15,    0x0d, 0x0a}; // 从机待发送数据
+                           // 帧头  源地址  目标地址  帧尾
 u8 AckBuffer[ACK_LENGTH]   = {0x55,  0xff,     0,     0x0d, 0x0a};                                             // 主机应答数据
 
-void TIM3_Set(u8 sta);                         // 设置TIM3的开关   sta:0，关闭   1，开启
-void USART1_SendStr(unsigned char *Str);      // USART发送字符串函数                         
+void TIM3_Set(u8 sta);                          // 设置TIM3的开关   sta:0，关闭   1，开启
+void USART1_SendStr(unsigned char *Str);       // USART发送字符串函数                         
 void System_Initial(void);                     // 系统初始化
 void Sleep_Initial(void);                      // AWU定时唤醒初始化 
 u8   RF_SendPacket(u8 *Sendbuffer, u8 length);  // 从机发送数据包
@@ -165,7 +165,7 @@ void System_Initial(void)
 ============================================================================*/
 INT8U RF_SendPacket(INT8U *Sendbuffer, INT8U length)
 {
-    uint8_t  i = 0, ack_len = 0, ack_buffer[30] = {0};
+    uint8_t  i = 0, ack_len = 0, ack_buffer[15] = {0};
     RecvWaitTime = (int)RECV_TIMEOUT;           // 等待应答超时限制1500ms
     
     CC1101SendPacket(SendBuffer, length, ADDRESS_CHECK);    // 发送数据 
@@ -181,7 +181,7 @@ INT8U RF_SendPacket(INT8U *Sendbuffer, INT8U length)
         if(RecvWaitTime <= 0)      
         {  
             TIM3_Set(0);                            // 关闭TIM3
-            //printf("RecvWaitTime0=%d\r\n", RecvWaitTime);
+            printf("RecvWaitTime0=%d\r\n", RecvWaitTime);
             return 1;                              // 等待应答超时
         }
     }
@@ -195,7 +195,7 @@ INT8U RF_SendPacket(INT8U *Sendbuffer, INT8U length)
         if(RecvWaitTime <= 0)      
         {  
             TIM3_Set(0);                            // 关闭TIM3
-            //printf("RecvWaitTime0=%d\r\n", RecvWaitTime);
+            printf("RecvWaitTime1=%d\r\n", RecvWaitTime);
             return 1;                              // 等待应答超时
         }
     }
@@ -206,14 +206,14 @@ INT8U RF_SendPacket(INT8U *Sendbuffer, INT8U length)
 //                        // 帧头  源地址  目标地址    帧尾
 //AckBuffer[ACK_LENGTH]   = {0x55,  0xff,     0,     0x0d, 0x0a};                                             // 主机应答数据
     
-    if((strlen((const char*)ack_buffer) <= 0) || (strlen((const char*)ack_buffer)) > 29)  
-    {
-        CC1101Init(); 
-        printf("ack_len0=%d\r\n", ack_len);
-        return 2;                                              // 数据包长度错误
-    }
+//    if((strlen((const char*)ack_buffer) <= 0) || (strlen((const char*)ack_buffer)) > 29)  
+//    {
+//        CC1101Init(); 
+//        printf("ack_len0=%d\r\n", ack_len);
+//        return 2;                                              // 数据包长度错误
+//    }
     
-    if(ack_len <= 0 || ack_len > 30)  
+    if(ack_len <= 0 || ack_len > 15)  
     {
         CC1101Init(); 
         printf("ack_len1=%d\r\n", ack_len);
@@ -256,7 +256,7 @@ void Sleep_Initial(void)
 {
     // 所有IO全部输出低电平    降低功耗
     GPIO_Init(GPIOA, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_7, GPIO_Mode_Out_PP_Low_Slow);
-    GPIO_Init(GPIOB, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_3, GPIO_Mode_Out_PP_Low_Slow);
+    GPIO_Init(GPIOB, GPIO_Pin_0|GPIO_Pin_1, GPIO_Mode_Out_PP_Low_Slow);
     GPIO_Init(GPIOC, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_7, GPIO_Mode_Out_PP_Low_Slow);
     GPIO_Init(GPIOD, GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7, GPIO_Mode_Out_PP_Low_Slow);
     

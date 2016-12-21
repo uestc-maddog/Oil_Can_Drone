@@ -23,7 +23,7 @@
 #define RECV_TIMEOUT    1500    // 接收超时
 
 #define ACK_LENGTH      5       // 应答信号长度        
-#define SEND_LENGTH     14      // 发送数据每包的长度
+#define SEND_LENGTH     6       // 发送数据每包的长度
 
 /*===========================================================================
 ------------------------------Internal IMPORT functions----------------------
@@ -36,8 +36,10 @@ you must offer the following functions for this module
 #define PORT_CC_CSN     GPIOB
 #define PIN_CC_CSN      GPIO_Pin_4
 
-#define PORT_CC_IRQ     GPIOA
-#define PIN_CC_IRQ      GPIO_Pin_2
+#define PORT_CC_IRQ     GPIOB
+#define PIN_CC_IRQ      GPIO_Pin_3
+//#define PORT_CC_IRQ     GPIOA
+//#define PIN_CC_IRQ      GPIO_Pin_2
 
 #define PORT_CC_GDO2    GPIOA
 #define PIN_CC_GDO2     GPIO_Pin_3
