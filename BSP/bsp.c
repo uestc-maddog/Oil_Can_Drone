@@ -24,11 +24,11 @@ void GPIO_Initial(void)
 {
     // 配置LED引脚    PC6
     GPIO_Init(PORT_LED, PIN_LED, GPIO_Mode_Out_PP_High_Slow);
-    LED_OFF();       // 熄灭LED
+    LED_OFF();        // 熄灭LED
     
     // 配置SWITCH引脚 PB2 
     GPIO_Init(PORT_SWITCH, PIN_SWITCH, GPIO_Mode_Out_PP_High_Slow);
-    SWITCH_ON();     // 开启CC1101电源
+    SWITCH_OFF();     // 关闭CC1101电源
      
     // 配置CC1101相关控制引脚 CSN(PB4), IRQ(PA2), GDO2(PA3)
     GPIO_Init(PORT_CC_IRQ, PIN_CC_IRQ, GPIO_Mode_In_PU_No_IT);
