@@ -19,6 +19,6 @@
 @REM 
 
 
-"E:\My Program\IAR_STM8-7.0\common\bin\cspybat" "E:\My Program\IAR_STM8-7.0\stm8\bin\stm8proc.dll" "E:\My Program\IAR_STM8-7.0\stm8\bin\stm8stlink.dll"  %1 --plugin "E:\My Program\IAR_STM8-7.0\stm8\bin\stm8bat.dll" --backend -B "-p" "E:\My Program\IAR_STM8-7.0\stm8\config\ddf\iostm8l151k4.ddf" "-d" "stlink" "--mcuname" "STM8L151K4" "--verify_download" 
+"E:\My Program\IAR_STM8-7.0\common\bin\cspybat" "E:\My Program\IAR_STM8-7.0\stm8\bin\stm8proc.dll" "E:\My Program\IAR_STM8-7.0\stm8\bin\stm8stlink.dll"  %1 --plugin "E:\My Program\IAR_STM8-7.0\stm8\bin\stm8bat.dll" --backend -B "-p" "E:\My Program\IAR_STM8-7.0\stm8\config\ddf\iostm8l101k3.ddf" "-d" "stlink" "--mcuname" "STM8L101K3T" "--verify_download" 
 
 

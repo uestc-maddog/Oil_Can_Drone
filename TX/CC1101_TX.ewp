@@ -17,7 +17,7 @@
         <debug>1</debug>
         <option>
           <name>GenDeviceSelectMenu</name>
-          <state>STM8L151K4	STM8L151K4</state>
+          <state>STM8L101K3T	STM8L101K3T</state>
         </option>
         <option>
           <name>GenCodeModel</name>
@@ -27,7 +27,7 @@
         <option>
           <name>GenDataModel</name>
           <version>0</version>
-          <state>2</state>
+          <state>1</state>
         </option>
         <option>
           <name>GOutputBinary</name>
@@ -61,7 +61,7 @@
         </option>
         <option>
           <name>GenRTConfigPath</name>
-          <state>$TOOLKIT_DIR$\LIB\dlstm8sln.h</state>
+          <state>$TOOLKIT_DIR$\LIB\dlstm8smn.h</state>
         </option>
         <option>
           <name>GenLibInFormatter</name>
